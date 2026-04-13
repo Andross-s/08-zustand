@@ -3,7 +3,7 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 import noteService from "@/lib/api";
 
@@ -20,8 +20,22 @@ export async function generateMetadata({
   const note = await noteService.fetchNoteById(id);
 
   return {
-    title: note.title,
-    description: note.content,
+    title: `${note.title} | NoteHub`,
+    description: note.content?.slice(0, 150) || "Note details page",
+    openGraph: {
+      title: note.title,
+      description: note.content?.slice(0, 150) || "Note details page",
+      url: `https://08-zustand-red-tau.vercel.app/notes/${note.id}`,
+      siteName: "NoteHub",
+      images: [
+        {
+          url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
+          width: 1200,
+          height: 630,
+          alt: "NoteHub Open Graph Image",
+        },
+      ],
+    },
   };
 }
 
