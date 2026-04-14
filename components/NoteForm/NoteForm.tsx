@@ -1,34 +1,58 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import noteService from "@/lib/api";
 import type { TAGS } from "@/types/note";
+import createNote from "@/app/notes/action/create/page";
+import { DraftNote, useNoteStore } from "@/lib/store/noteStore";
 
 import css from "./NoteForm.module.css";
 
 function NoteForm() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
-  const [isPending, setIsPending] = useState(false);
+  const { draft, setDraft, clearDraft } = useNoteStore();
 
-  async function handleSubmit(formData: FormData) {
-    setIsPending(true);
+  const { mutate, isPending } = useMutation<unknown, Error, DraftNote>({
+    mutationFn: createNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      clearDraft();
+      router.back();
+    },
+  });
 
-    const title = formData.get("title") as string;
-    const content = formData.get("content") as string;
-    const tag = formData.get("tag") as TAGS;
+  const handleChange = (
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const { name, value } = event.target;
 
-    await noteService.createNote({ title, content, tag: tag as TAGS });
-    setIsPending(false);
-    router.push("/notes/filter/all");
-  }
+    setDraft({
+      [name]: name === "tag" ? (value as TAGS) : value,
+    } as Partial<typeof draft>);
+  };
+
+  const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    mutate(draft);
+  };
 
   return (
-    <form className={css.form} action={handleSubmit}>
+    <form className={css.form} onSubmit={handleSubmit}>
       <div className={css.formGroup}>
         <label htmlFor="title">Title</label>
-        <input id="title" type="text" name="title" className={css.input} />
+        <input
+          id="title"
+          type="text"
+          name="title"
+          value={draft.title}
+          onChange={handleChange}
+          required
+          className={css.input}
+        />
       </div>
 
       <div className={css.formGroup}>
@@ -37,13 +61,21 @@ function NoteForm() {
           id="content"
           name="content"
           rows={8}
+          value={draft.content}
+          onChange={handleChange}
           className={css.textarea}
         />
       </div>
 
       <div className={css.formGroup}>
         <label htmlFor="tag">Tag</label>
-        <select id="tag" name="tag" className={css.select}>
+        <select
+          id="tag"
+          name="tag"
+          value={draft.tag}
+          onChange={handleChange}
+          className={css.select}
+        >
           <option value="Todo">Todo</option>
           <option value="Work">Work</option>
           <option value="Personal">Personal</option>
@@ -61,7 +93,7 @@ function NoteForm() {
           Cancel
         </button>
         <button type="submit" className={css.submitButton} disabled={isPending}>
-          Create note
+          {isPending ? "Creating..." : "Create note"}
         </button>
       </div>
     </form>

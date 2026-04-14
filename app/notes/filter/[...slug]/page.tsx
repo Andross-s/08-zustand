@@ -10,7 +10,7 @@ import NotesClient from "./Notes.client";
 import { TAGS } from "@/types/note";
 
 interface FilterPageProps {
-  params: { slug: string[] };
+  params: Promise<{ slug: string[] }>;
 }
 
 export const dynamic = "force-dynamic";
@@ -18,7 +18,8 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: FilterPageProps): Promise<Metadata> {
-  const tag = params.slug?.[0] ?? "all";
+  const { slug } = await params;
+  const tag = slug?.[0] ?? "all";
 
   const title =
     tag === "all" ? "All Notes | NoteHub" : `${tag} Notes | NoteHub`;
@@ -48,7 +49,7 @@ export async function generateMetadata({
 }
 
 export default async function FilterPage({ params }: FilterPageProps) {
-  const { slug } = params;
+  const { slug } = await params;
 
   const tagValue = slug?.[0];
   const activeTag = !tagValue || tagValue === "all" ? undefined : tagValue;

@@ -49,7 +49,7 @@ function NotesClient({ activeTag }: NotesClientProps) {
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
-        <Link href={"/app/notes/action/create"}>Create note +</Link>
+        <Link href={"/notes/action/create"}>Create note +</Link>
         <SearchBox onChange={debouncedSetSearch} />
       </header>
       {isModalOpen && (
