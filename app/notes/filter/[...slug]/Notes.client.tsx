@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useDebouncedCallback } from "use-debounce";
+import Link from "next/link";
 
 import css from "./NotesPage.module.css";
 
@@ -48,14 +49,12 @@ function NotesClient({ activeTag }: NotesClientProps) {
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
-        <button className={css.button} onClick={() => setIsModalOpen(true)}>
-          Create note +
-        </button>
+        <Link href={"/app/notes/action/create"}>Create note +</Link>
         <SearchBox onChange={debouncedSetSearch} />
       </header>
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
-          <NoteForm onClose={() => setIsModalOpen(false)} />
+          <NoteForm />
         </Modal>
       )}
       {isLoading && <div>Loading...</div>}
