@@ -3,8 +3,9 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import type { TAGS } from "@/types/note";
-import createNote from "@/app/notes/action/create/page";
-import { DraftNote, useNoteStore } from "@/lib/store/noteStore";
+import createNote from "@/app/notes/action/create/createNote";
+import type { DraftNote } from "@/lib/api";
+import { useNoteStore } from "@/lib/store/noteStore";
 
 import css from "./NoteForm.module.css";
 
@@ -32,10 +33,10 @@ function NoteForm() {
 
     setDraft({
       [name]: name === "tag" ? (value as TAGS) : value,
-    } as Partial<typeof draft>);
+    } as Partial<DraftNote>);
   };
 
-  const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     mutate(draft);
   };

@@ -1,13 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import type { TAGS } from "@/types/note";
-
-export interface DraftNote {
-  title: string;
-  content: string;
-  tag: TAGS;
-}
+import type { DraftNote } from "@/lib/api";
 
 export const initialDraft: DraftNote = {
   title: "",
@@ -34,7 +28,7 @@ export const useNoteStore = create<NoteStore>()(
       clearDraft: () => set({ draft: initialDraft }),
     }),
     {
-      name: "note-draft-storage", // localStorage key
+      name: "note-draft-storage",
     },
   ),
 );

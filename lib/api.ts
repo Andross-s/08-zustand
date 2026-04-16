@@ -6,6 +6,12 @@ interface FetchNotesResponse {
   totalPages: number;
 }
 
+export interface DraftNote {
+  title: string;
+  content: string;
+  tag: TAGS;
+}
+
 const api = axios.create({
   baseURL: "https://notehub-public.goit.study/api",
   headers: {
@@ -26,17 +32,11 @@ async function fetchNotes(
       ...(tag ? { tag } : {}),
     },
   });
-  // Повертаємо totalPages, total, notes
+
   return data;
 }
 
-interface CreateNoteParams {
-  title: string;
-  content: string;
-  tag: TAGS;
-}
-
-async function createNote(note: CreateNoteParams): Promise<Note> {
+async function createNote(note: DraftNote): Promise<Note> {
   const { data } = await api.post<Note>("/notes", note);
   return data;
 }
